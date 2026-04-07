@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BIMS Portal FAQ Chatbot</title>
+    <style>
+        :root {
+            --bg: #f4f7fb;
+            --card: #ffffff;
+            --text: #111827;
+            --muted: #64748b;
+            --primary: #2563eb;
+            --primary-strong: #1d4ed8;
+            --border: #e2e8f0;
+            --shadow: 0 24px 60px rgba(15, 23, 42, 0.08);
+        }
+        * {
+            box-sizing: border-box;
+        }
+        body {
+            margin: 0;
+            min-height: 100vh;
+            font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(180deg, #eff6ff 0%, #f8fafc 100%);
+            color: var(--text);
+        }
+        .container {
+            max-width: 980px;
+            margin: 0 auto;
+            padding: 28px 20px 40px;
+        }
+        .hero {
+            display: grid;
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        .hero h1 {
+            margin: 0;
+            font-size: clamp(2.3rem, 3vw, 3.3rem);
+            line-height: 1.05;
+        }
+        .hero p {
+            margin: 0;
+            color: var(--muted);
+            font-size: 1rem;
+            line-height: 1.8;
+            max-width: 720px;
+        }
+        .chat-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 28px;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+        .chat-header {
+            padding: 26px 28px;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+        }
+        .chat-header strong {
+            font-size: 1.15rem;
+        }
+        .chat-header span {
+            color: var(--muted);
+            font-size: 0.95rem;
+        }
+        .chat-body {
+            padding: 20px;
+            display: grid;
+            gap: 14px;
+            background: #f8fafc;
+            min-height: 320px;
+            max-height: 520px;
+            overflow-y: auto;
+        }
+        .message {
+            width: fit-content;
+            max-width: 72%;
+            padding: 16px 18px;
+            border-radius: 22px;
+            line-height: 1.7;
+            word-break: break-word;
+            box-shadow: 0 8px 20px rgba(15, 23, 42, 0.05);
+        }
+        .message.user {
+            margin-left: auto;
+            background: var(--primary);
+            color: #ffffff;
+            border-bottom-right-radius: 6px;
+            align-self: flex-end;
+        }
+        .message.bot {
+            margin-right: auto;
+            background: #ffffff;
+            color: var(--text);
+            border: 1px solid #e2e8f0;
+            border-bottom-left-radius: 6px;
+            align-self: flex-start;
+        }
+        .chat-footer {
+            padding: 20px 24px 26px;
+            display: grid;
+            gap: 12px;
+            background: var(--card);
+            border-top: 1px solid #e5e7eb;
+        }
+        .chat-input {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 12px;
+        }
+        .chat-input input {
+            width: 100%;
+            padding: 16px 18px;
+            border-radius: 16px;
+            border: 1px solid #cbd5e1;
+            font-size: 1rem;
+            outline: none;
+        }
+        .chat-input button {
+            border: none;
+            border-radius: 16px;
+            background: var(--primary);
+            color: #fff;
+            padding: 0 28px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: transform 0.2s ease, background 0.2s ease;
+        }
+        .chat-input button:hover {
+            transform: translateY(-1px);
+            background: var(--primary-strong);
+        }
+        .status {
+            color: #b91c1c;
+            font-size: 0.95rem;
+            min-height: 1.2rem;
+        }
+        .typing-indicator {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            max-width: 50%;
+            padding: 14px 18px;
+            border-radius: 18px;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            color: var(--muted);
+            font-size: 0.95rem;
+            margin-right: auto;
+        }
+        .typing-indicator span {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            background: #94a3b8;
+            border-radius: 9999px;
+            animation: blink 1.2s infinite ease-in-out;
+        }
+        .typing-indicator span:nth-child(2) {
+            animation-delay: 0.16s;
+        }
+        .typing-indicator span:nth-child(3) {
+            animation-delay: 0.32s;
+        }
+        @keyframes blink {
+            0%, 80%, 100% { opacity: 0.2; transform: translateY(0); }
+            40% { opacity: 1; transform: translateY(-2px); }
+        }
+        .hint {
+            padding: 0 24px 24px;
+            color: var(--muted);
+            font-size: 0.95rem;
+        }
+        .hint strong {
+            color: var(--text);
+        }
+        @media (max-width: 720px) {
+            .chat-body {
+                min-height: 360px;
+            }
+            .chat-input {
+                grid-template-columns: 1fr;
+            }
+            .chat-input button {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <section class="hero">
+            <div>
+                <h1>BIMS Portal FAQ Chatbot</h1>
+                <p>Use this assistant to get instant answers about the BIMS student portal: login, uploads, progress tracking, teacher tasks, deadlines, resubmission, and support.</p>
+            </div>
+        </section>
+
+        <section class="chat-card">
+            <div class="chat-header">
+                <div><strong>BIMS Assistant</strong></div>
+                <div><span>Ask a portal question anytime</span></div>
+            </div>
+            <div id="chat" class="chat-body">
+                <div class="message bot">Hello! Ask me anything about the BIMS portal, student dashboard, teacher features, or project submission.</div>
+            </div>
+            <div class="status" id="status"></div>
+            <div class="hint"><strong>Try:</strong> What is BIMS portal? / How to upload project? / Can I resubmit my work?</div>
+            <div class="chat-footer">
+                <div class="chat-input">
+                    <input type="text" id="query" placeholder="Type your question here...">
+                    <button onclick="sendQuery()">Send</button>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        async function sendQuery() {
+            const queryEl = document.getElementById('query');
+            const statusEl = document.getElementById('status');
+            const chatEl = document.getElementById('chat');
+            const query = queryEl.value.trim();
+            statusEl.textContent = '';
+
+            if (!query) {
+                statusEl.textContent = 'Please type a question before sending.';
+                return;
+            }
+
+            const userBubble = document.createElement('div');
+            userBubble.className = 'message user';
+            userBubble.textContent = query;
+            chatEl.appendChild(userBubble);
+            chatEl.scrollTop = chatEl.scrollHeight;
+
+            const typingIndicator = document.createElement('div');
+            typingIndicator.className = 'typing-indicator';
+            typingIndicator.innerHTML = '<span></span><span></span><span></span> AI is typing...';
+            chatEl.appendChild(typingIndicator);
+            chatEl.scrollTop = chatEl.scrollHeight;
+
+            try {
+                const startTime = Date.now();
+                const response = await fetch('/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ query })
+                });
+                const elapsed = Date.now() - startTime;
+                const minDelay = 1000;
+                if (elapsed < minDelay) {
+                    await new Promise(resolve => setTimeout(resolve, minDelay - elapsed));
+                }
+                typingIndicator.remove();
+
+                if (!response.ok) {
+                    statusEl.textContent = `Server error: ${response.status}`;
+                    return;
+                }
+                const data = await response.json();
+                const botBubble = document.createElement('div');
+                botBubble.className = 'message bot';
+                botBubble.textContent = data.answer;
+                chatEl.appendChild(botBubble);
+                chatEl.scrollTop = chatEl.scrollHeight;
+                queryEl.value = '';
+            } catch (err) {
+                if (typingIndicator.parentNode) {
+                    typingIndicator.remove();
+                }
+                statusEl.textContent = 'Unable to contact the chatbot server. Please try again.';
+                console.error(err);
+            }
+        }
+
+        document.getElementById('query').addEventListener('keydown', function(event) {
+            if (event.key === 'Enter') {
+                sendQuery();
+            }
+        });
+    </script>
+</body>
+</html>
